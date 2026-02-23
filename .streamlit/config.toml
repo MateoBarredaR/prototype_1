@@ -1,0 +1,6 @@
+[theme]
+primaryColor = "#1DA1F2"              # azul eléctrico tipo Revolut
+backgroundColor = "#0B0F19"           # fondo oscuro profundo
+secondaryBackgroundColor = "#111827"  # cards ligeramente más claras
+textColor = "#F3F4F6"                 # blanco suave
+font = "sans serif"

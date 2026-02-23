@@ -1,0 +1,24 @@
+<svg width="240" height="120" viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="boostGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC"></stop>
+      <stop offset="100%" stop-color="#F472B6"></stop>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon (arrow / boost shape) -->
+  <path d="M120 10
+       L165 55
+       L150 55
+       L150 85
+       L120 105
+       L90 85
+       L90 55
+       L75 55
+       Z" fill="url(#boostGradient)"></path>
+
+  <!-- Text -->
+  <text x="120" y="118" text-anchor="middle" font-family="Inter, SF Pro Display, Arial, sans-serif" font-size="36" font-weight="700" fill="#F3F4F6" letter-spacing="1.5">
+    Boost
+  </text>
+</svg>
