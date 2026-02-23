@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="MicroMate: Smart scoring for the informal sector.", layout="wide")
 
@@ -45,6 +46,9 @@ with tab_bank:
     col1, col2, col3 = st.columns(3)
     with col1:
         score_threshold = st.slider("Eligibility score threshold", 1, 100, 80, 1)
+        # Global variable to share threshold with customer view
+        st.session_state["bank_score_threshold"] = score_threshold
+
     with col2:
         sample_size = st.selectbox("Sample size", [1000, 3000, 5000, 10000], index=2)
     with col3:
@@ -126,78 +130,102 @@ with tab_bank:
 
 # Customer View
 with tab_customer:
-    st.subheader("Your financial health & credit readiness (Customer View)")
+    st.subheader("Customer View — Eligibility score")
+    st.caption("Choose an applicant from the dataset and view their microcredit readiness score.")
 
-    st.write("This view translates model signals into user-facing insights and a what-if simulator.")
+    # --------- Load a sample to pick an applicant ----------
 
-    left, right = st.columns([1, 1])
+    df_cust = load_data_sample(n=100)
+    idx = st.selectbox("YOUR Account Number", list(range(len(df_cust))))
+    row = df_cust.iloc[idx] 
 
-    with left:
-        # Simple user inputs mapped to model features
-        income = st.slider("Estimated income (proxy)", 10000, 300000, 60000, 1000)
-        credit = st.slider("Desired credit amount", 1000, 200000, 20000, 500)
-        annuity = st.slider("Estimated annuity / monthly repayment proxy", 0, 50000, 8000, 500)
-        goods_price = st.slider("Estimated goods price", 0, 250000, 20000, 500)
+    # --------- Predict for selected applicant ----------
+    X_one = pd.DataFrame([row[selected_features].to_dict()])[selected_features]
+    risk_prob = float(clf.predict_proba(X_one)[0, 1])
+    score = float((100 * (1 - risk_prob)))
 
-        days_employed = st.slider("Income stability proxy (days employed)", -20000, 0, -3000, 100)
-        days_birth = st.slider("Age proxy (days birth)", -25000, -7000, -12000, 100)
-        fam = st.slider("Family members", 1, 10, 3, 1)
-        children = st.slider("Children", 0, 8, 1, 1)
+    # Decide color band
+    # (Used for text + gauge steps)
+    if score >= 75:
+        band = "High"
+    elif score >= 50:
+        band = "Medium"
+    else:
+        band = "Low"
 
-        income_type = st.selectbox("Income regularity proxy (NAME_INCOME_TYPE)", ["Working", "Commercial associate", "Pensioner", "State servant", "Unemployed"])
-        edu = st.selectbox("Education proxy (NAME_EDUCATION_TYPE)", ["Secondary / secondary special", "Higher education", "Incomplete higher", "Lower secondary", "Academic degree"])
-        occ = st.selectbox("Economic activity proxy (OCCUPATION_TYPE)", ["Laborers", "Sales staff", "Managers", "Core staff", "Drivers", "Cooking staff", "Security staff", "Cleaning staff", "Medicine staff", "Other"])
-        fam_status = st.selectbox("Household structure proxy (NAME_FAMILY_STATUS)", ["Married", "Single / not married", "Civil marriage", "Separated", "Widow"])
+    colA, colB = st.columns([1, 2])
 
-    # Build input row with the exact expected feature names
-    input_row = {
-        "AMT_INCOME_TOTAL": income,
-        "AMT_CREDIT": credit,
-        "AMT_ANNUITY": annuity,
-        "AMT_GOODS_PRICE": goods_price,
-        "DAYS_EMPLOYED": days_employed,
-        "DAYS_BIRTH": days_birth,
-        "CNT_FAM_MEMBERS": fam,
-        "CNT_CHILDREN": children,
-        "NAME_INCOME_TYPE": income_type,
-        "NAME_EDUCATION_TYPE": edu,
-        "OCCUPATION_TYPE": occ,
-        "NAME_FAMILY_STATUS": fam_status
-    }
+    with colA:
+        k1, k2 = st.columns(2)
+        k1.metric("Eligibility score (0–100)", f"{score:.1f}")
+        k2.metric("Band", band)
 
-    X_user = pd.DataFrame([input_row])[selected_features]
-    risk_prob = float(clf.predict_proba(X_user)[0, 1])
-    score = risk_to_score(risk_prob)
+        # Read threshold from session state (set by bank view) or default to 80
+        bank_threshold = st.session_state.get("bank_score_threshold", 80)
 
-    with right:
-        st.markdown("### My Snapshot")
-        snap = pd.DataFrame({
-            "Metric": ["Estimated default risk", "Eligibility score (0–100)"],
-            "Value": [f"{risk_prob:.2f}", f"{score}"]
-        })
-        st.table(snap)
+        st.caption(f"Current bank eligibility threshold: **{bank_threshold}**")
 
-        st.markdown("### What-if simulator (income stability)")
-        # vary stability and show score curve
-        stability_range = np.linspace(-20000, 0, 25)
-        scores = []
-        for s in stability_range:
-            tmp = input_row.copy()
-            tmp["DAYS_EMPLOYED"] = float(s)
-            p = float(clf.predict_proba(pd.DataFrame([tmp])[selected_features])[0, 1])
-            scores.append(risk_to_score(p))
-        chart_df = pd.DataFrame({"DAYS_EMPLOYED": stability_range, "Eligibility score": scores})
-        st.line_chart(chart_df.set_index("DAYS_EMPLOYED"))
+        # Dynamic button and message based on eligibility
+        if score >= bank_threshold:
+            st.success("You are eligible for a loan!")
+            if st.button("Apply for a microloan"):
+                st.balloons()
+                st.info("Application submitted (demo). Next: identity verification + repayment plan selection.")
+        else:
+            gap = bank_threshold - score
+            st.warning(f"Almost there — you are **{gap:.1f}** points away.")
+            if st.button("Almost there: click here to know how you can improve your score"):
+                st.markdown("#### How to improve your score (personalized tips)")
+                tips = []
+                # simple tips
+                if row.get("DAYS_EMPLOYED", -999999) > -1500:
+                    tips.append("- Increase income regularity over time (more stable patterns improve readiness).")
+                if row.get("AMT_CREDIT", 0) > row.get("AMT_INCOME_TOTAL", 1):
+                    tips.append("- Consider requesting a smaller amount first to build a positive repayment history.")
+                if row.get("CNT_FAM_MEMBERS", 0) >= 5:
+                    tips.append("- A larger household can reduce financial resilience—smaller repayments may help.")
+                if row.get("AMT_ANNUITY", 0) > 0 and row.get("AMT_ANNUITY", 0) > 0.2 * row.get("AMT_INCOME_TOTAL", 0):
+                    tips.append("- Reduce repayment burden (lower monthly payments can reduce risk).")
 
-        st.markdown("### Tips to improve")
-        tips = []
-        if days_employed > -1500:
-            tips.append("Increase income regularity: more consistent earning patterns improve your readiness score.")
-        if credit > income * 1.0:
-            tips.append("Start with a smaller loan amount to build repayment history and reduce risk.")
-        if fam >= 5:
-            tips.append("Higher household burden can reduce resilience—consider lower monthly repayment plans.")
-        if not tips:
-            tips.append("You’re in a good position—keep consistency and avoid sudden spending spikes.")
-        for t in tips[:3]:
-            st.write("• " + t)
+                if not tips:
+                    tips = ["- Keep consistency and avoid sudden spending spikes."]
+
+                st.write("\n".join(tips))
+
+    with colB:
+        # --------- Circular ring gauge ----------
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=score,
+            number={"suffix": "", "font": {"size": 51}},
+            gauge={
+                "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "gray"},
+                "bar": {"color": "rgba(0,0,0,0)"},  # hide the default bar
+                "bgcolor": "white",
+                "borderwidth": 0,
+                "steps": [
+                    {"range": [0, 50], "color": "#EF4444"},    # red
+                    {"range": [50, 75], "color": "#F59E0B"},   # yellow
+                    {"range": [75, 100], "color": "#22C55E"}   # green
+                ],
+                # A thin needle/marker at current score
+                "threshold": {
+                    "line": {"color": "black", "width": 4},
+                    "thickness": 0.85,
+                    "value": score
+                }
+            },
+            title={"text": "Microcredit eligibility ring"}
+        ))
+
+        fig.update_layout(
+            height=300,
+            margin=dict(l=10, r=10, t=60, b=10)
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+        # Optional: show selected applicant details (light)
+        with st.expander("Show selected applicant inputs (proxies)"):
+            show_cols = [c for c in (["SK_ID_CURR"] + selected_features) if c in df_cust.columns]
+            st.dataframe(pd.DataFrame([row[show_cols]]), use_container_width=True)
