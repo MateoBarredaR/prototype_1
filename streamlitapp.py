@@ -6,6 +6,7 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
+# Page logo
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     st.image("assets/boost_logo.svg", width=1800)
@@ -34,14 +35,14 @@ st.caption("Two perspectives: Bank decisioning and Customer financial health.")
 
 tab_bank, tab_customer = st.tabs(["Bank View", "Customer Financial Health View"])
 
-#Sampling Data (for demo purposes)
+# Sampling Data
 @st.cache_data
 def load_data_sample(n=5000, seed=42):
     df = pd.read_csv(os.path.join("DATA", "application_train.csv"))
     df = df.sample(n=min(n, len(df)), random_state=seed).reset_index(drop=True)
     return df
 
-# Bank View
+### Bank View
 with tab_bank:
     st.subheader("Portfolio pre-screening (Bank View)")
 
@@ -106,7 +107,7 @@ with tab_bank:
         counts, edges = np.histogram(scores, bins=bins)
         centers = (edges[:-1] + edges[1:]) / 2
 
-        # --- Colors (Revolut style) ---
+        # Colors
         base_color = "#C9CCD2"
         approved_color = "#1DA1F2"
         threshold_color = "#E5E7EB"
@@ -145,9 +146,8 @@ with tab_bank:
         total = int(len(df_sample))
         st.caption(f"Approved (score ≥ {score_threshold}): {approved_count} / {total} ({approved_count/total:.1%})")
 
-# -------------------------
-# Customer View
-# -------------------------
+### Customer View
+
 with tab_customer:
     st.subheader("Customer View — Eligibility score")
     st.caption("Choose an applicant from the dataset and view their microcredit readiness score.")
@@ -155,9 +155,9 @@ with tab_customer:
     # Sub-tabs SOLO dentro de Customer
     cust_account_tab, cust_sim_tab = st.tabs(["👤 Account", "🧪 Simulation"])
 
-    # -------------------------
-    # Account tab
-    # -------------------------
+   
+    ## Account tab
+
     with cust_account_tab:
         df_cust = load_data_sample(n=100)
         idx = st.selectbox("YOUR Account Number", list(range(len(df_cust))))
@@ -200,7 +200,8 @@ with tab_customer:
                     "Almost there: click here to know how you can improve your score",
                     key="improve_score_btn"
                 ):
-                    st.markdown("#### How to improve your score (personalized tips)")
+                    st.markdown("#### Boost your score: Tips & Simulation (Check our Simulation tab)")
+                    st.caption("AI recommendations based on your profile (comming soon):")
                     tips = []
 
                     # simple tips
@@ -253,9 +254,9 @@ with tab_customer:
                 show_cols = [c for c in (["SK_ID_CURR"] + selected_features) if c in df_cust.columns]
                 st.dataframe(pd.DataFrame([row[show_cols]]), use_container_width=True)
 
-    # -------------------------
-    # Simulation tab
-    # -------------------------
+
+    ## Simulation tab 
+
     with cust_sim_tab:
         st.subheader("Simulation — explore how inputs affect your score")
         st.caption("This is a sandbox. Changes are not saved. Adjust inputs to see the eligibility score update instantly.")
