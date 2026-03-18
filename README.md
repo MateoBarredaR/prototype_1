@@ -62,8 +62,8 @@ Focuses on transparency and empowerment for borrowers, split into two sub-tabs:
 ## 🤖 Machine Learning Model
 
 ### Dataset
-The model is trained on the **Home Credit Default Risk** dataset (application_train.csv). It is ideal for this project as it assesses creditworthiness beyond traditional bureau data.
-[Link Here:](https://www.kaggle.com/competitions/home-credit-default-risk).
+The model is trained on the **Home Credit Default Risk** dataset (Kaggle). It is ideal for this project as it assesses creditworthiness beyond traditional bureau data.
+[Link Here](https://www.kaggle.com/competitions/home-credit-default-risk).
 
 ### Training
 Documented in `📓 Model_Training.ipynb`, covering:
