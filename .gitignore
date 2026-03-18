@@ -1,2 +1,5 @@
 # Add your API keys and other secrets here, and they will be ignored by git.
 cohere.key
+
+#Data files
+DATA/

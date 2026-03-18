@@ -6,6 +6,18 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
+import json
+import cohere
+
+#Cohere API setup (for future use in tips generation)
+@st.cache_resource
+def load_cohere_client():
+    with open("cohere.key") as f:
+        COHERE_API_KEY = f.read().strip()
+    return cohere.ClientV2(COHERE_API_KEY)
+
+cohere_client = load_cohere_client()
+
 # Page logo
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
