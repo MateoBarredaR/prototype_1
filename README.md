@@ -62,7 +62,7 @@ The model is trained on the **Home Credit Default Risk** dataset from Kaggle:
 
 ### Training
 
-Training and experimentation are documented in [Model_Training.ipynb](/Users/mateobarreda/Development/ESADE/2_Term/Prototyping/Prototype/prototype_1/Model_Training.ipynb).
+Training and experimentation are documented in **Model_Training.ipynb**.
 
 The notebook covers:
 
