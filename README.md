@@ -1,117 +1,132 @@
-# 🚀 Boost — Smart Scoring for the Informal Sector
+# Boost - Smart Scoring for the Informal Sector
 
-**Boost** is a data-driven microcredit risk assessment prototype designed for informal and underbanked economies.  
-Instead of relying only on traditional credit history, Boost leverages machine learning proxies to estimate financial readiness and default risk, empowering both lenders (banks) and borrowers (customers).
+**Boost** is a Streamlit prototype for inclusive microcredit assessment. It combines a machine learning risk model with a customer-facing guidance experience designed for people with informal income, changing work patterns, or limited credit history.
 
-> **Tagline:** *Predicting potential, not just history.*
+Tagline: *Predicting potential, not just history.*
 
----
+## Project Overview
 
-## 🧠 Project Overview
+The app is built around two complementary perspectives:
 
-Boost is implemented as an interactive Streamlit application that combines:
-* A trained machine learning credit risk model.
-* Portfolio-level decision support for lenders.
-* An intuitive, user-facing eligibility experience for customers.
+1. **Bank View** for portfolio pre-screening and threshold-based decision support.
+2. **Customer Financial Health View** for individual score transparency, simulations, and guided next steps.
 
-The application is structured around two complementary views:
-1.  **🏦 Bank View** — Portfolio pre-screening & decision support.
-2.  **👤 Customer View** — Individual eligibility & simulation.
+Beyond score prediction, the prototype includes **Micromate Boost AI**, a supportive assistant that helps applicants understand how to improve their loan readiness in simple, practical language.
 
----
+## Main Features
 
-## 🖥️ Streamlit Application
+### Bank View
 
-The Streamlit app (`streamlitapp.py`) is the main entry point. It loads the trained model, processes data samples, and renders the interface.
+- Adjustable eligibility threshold from 1 to 100.
+- Portfolio KPIs for approved applicants, rejected applicants, and average default risk.
+- Sample applicant table with predicted risk and eligibility score.
+- Eligibility score distribution to explore approval trade-offs.
 
-**Key responsibilities:**
-* Load the trained model and selected features.
-* Compute default risk and eligibility scores.
-* Render interactive dashboards for banks and customers.
-* Share parameters (e.g., eligibility threshold) across views.
+### Customer Financial Health View
 
----
+- Individual eligibility score and risk band.
+- Personalized feedback based on the current bank threshold.
+- "What-if" simulation to test how profile changes affect the score.
+- Action-oriented guidance for applicants who are not yet eligible.
 
-## 🏦 Bank View — Portfolio Pre-Screening
+### Micromate Boost AI
 
-Designed for lenders and risk teams to explore risk–reward trade-offs.
+- Generates a personalized credit-readiness plan for the selected applicant.
+- Supports multi-turn chat with conversation memory.
+- Adapts guidance to the applicant profile and income type.
+- Shares curated public resources when the user asks for examples, links, or success stories.
+- Uses a warm, non-judgmental tone tailored to financially underserved users.
 
-**Functionality:**
-* **Adjustable Threshold:** Set the Eligibility Score (1–100) dynamically.
-* **KPIs:** Real-time count of approved/rejected applicants and average default risk.
-* **Visualizations:** * Interactive table of applicants.
-    * Eligibility score distribution histogram with approval threshold lines.
+## AI Behavior and Context Design
 
----
+The AI layer is intentionally split into different responsibilities:
 
-## 👤 Customer Financial Health View
+- `get_ai_credit_plan()` uses internal Boost policy guidance to generate the initial recommendation plan.
+- `summarize_boost_conversation()` also uses internal policy guidance to maintain a short internal memory of the conversation.
+- `chat_with_boost_ai()` does **not** use internal policy documents directly during normal chat replies.
 
-Focuses on transparency and empowerment for borrowers, split into two sub-tabs:
+This separation is important because it prevents the assistant from confusing internal policy section titles with user-facing resources.
 
-### 👤 Account
-* **Eligibility Score:** View individual score and risk band (High / Medium / Low).
-* **Dynamic Feedback:** Status updates based on the bank's current threshold.
-* **Action-Oriented Messaging:** Eligible users can "Apply", while others receive personalized improvement tips.
+For the chat experience:
 
-### 🧪 Simulation (Sandbox)
-* **What-if Analysis:** Users can modify inputs (income, household size, stability) to see how their score updates live.
-* **Education:** Helps users understand what drives their score and how to improve it.
+- Public, user-facing resources come only from curated links in `knowledge/success_ideas.json`.
+- The chat prompt receives those curated links as visible shareable context.
+- Internal policy titles such as `Boost policies section ...` are explicitly blocked from appearing in user-facing responses.
 
----
-
-## 🤖 Machine Learning Model
+## Machine Learning Model
 
 ### Dataset
-The model is trained on the **Home Credit Default Risk** dataset (Kaggle). It is ideal for this project as it assesses creditworthiness beyond traditional bureau data.
-[Link Here](https://www.kaggle.com/competitions/home-credit-default-risk).
+
+The model is trained on the **Home Credit Default Risk** dataset from Kaggle:
+[Home Credit Default Risk](https://www.kaggle.com/competitions/home-credit-default-risk)
 
 ### Training
-Documented in `📓 Model_Training.ipynb`, covering:
-* Data cleaning and feature selection.
-* Categorical encoding and scaling.
-* **Logistic Regression** training and ROC-AUC evaluation.
+
+Training and experimentation are documented in [Model_Training.ipynb](/Users/mateobarreda/Development/ESADE/2_Term/Prototyping/Prototype/prototype_1/Model_Training.ipynb).
+
+The notebook covers:
+
+- Data cleaning
+- Feature selection
+- Encoding and preprocessing
+- Logistic Regression training
+- Evaluation using ROC-AUC
 
 ### Model Artifacts
-The final model is saved in:
-`Models/microcredit_model.joblib`
 
----
+The application loads:
 
-## 📂 Project Structure
+- `Models/microcredit_model.joblib`
+- `Models/model_metadata.joblib`
+
+## Knowledge Files
+
+The app uses a small knowledge layer to support the AI experience:
+
+- `knowledge/boost_policies.md`: internal policy and tone guidance for planning and summarization.
+- `knowledge/success_ideas.json`: curated public links and practical examples that can be shown to users.
+- `knowledge/income_type_tips.json`: income-type-specific guidance used to personalize recommendations.
+
+## Project Structure
 
 ```text
 prototype_1/
-│
-├── streamlitapp.py          # Main Streamlit application
-├── Model_Training.ipynb     # Model training & evaluation
-├── README.md                # Documentation
-│
-├── DATA/
-│   └── application_train.csv
-│
+├── assets/
+│   └── boost_logo.svg
+├── knowledge/
+│   ├── boost_policies.md
+│   ├── income_type_tips.json
+│   └── success_ideas.json
 ├── Models/
-│   └── microcredit_model.joblib
-│
-└── .streamlit/
-    └── config.toml          # UI theme configuration
+│   ├── microcredit_model.joblib
+│   └── model_metadata.joblib
+├── Model_Training.ipynb
+├── README.md
+├── chat_utils.py
+└── streamlitapp.py
 ```
 
-## 📦 Required Libraries
+## Requirements
 
-Install the dependencies using pip:
+Install the main dependencies with:
 
 ```bash
-pip install streamlit pandas numpy scikit-learn joblib matplotlib plotly
+pip install streamlit pandas numpy scikit-learn joblib matplotlib plotly cohere
 ```
 
-## ▶️ How to Run the App
+You will also need:
 
-```bash
-From the project root directory, run:
+- a `cohere.key` file in the project root containing your Cohere API key
+- the training data file at `DATA/application_train.csv`
+
+## Run the App
+
+From the project root:
 
 ```bash
 streamlit run streamlitapp.py
 ```
 
-## 🎯 Purpose & Disclaimer
-This project is a prototype and educational showcase. It demonstrates how AI can support inclusive finance but is not a production-ready credit decision system.
+## Purpose and Disclaimer
+
+This project is a prototype for inclusive finance exploration and product design. It is meant to demonstrate how machine learning and conversational AI can support financial guidance, but it is **not** a production-ready lending decision system and does not guarantee credit approval outcomes.

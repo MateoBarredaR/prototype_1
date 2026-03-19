@@ -3,3 +3,7 @@ cohere.key
 
 #Data files
 DATA/
+
+repository.txt
+
+deployment.txt

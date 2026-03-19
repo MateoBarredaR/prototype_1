@@ -1,0 +1,66 @@
+{
+  "Pensioner": {
+    "label": "Pensioner",
+    "ideas": [
+      "Consider starting with a smaller loan amount to match your fixed income.",
+      "Show regular pension deposits from the last 6 months to build trust.",
+      "Keep monthly repayment pressure low to ensure financial comfort."
+    ]
+  },
+  "Working": {
+    "label": "Working",
+    "ideas": [
+      "Highlight stable, recurring income patterns over time.",
+      "Document any overtime or bonuses as additional support.",
+      "Starting with a short-term loan can quickly build your credit reputation."
+    ]
+  },
+  "Commercial associate": {
+    "label": "Commercial associate",
+    "ideas": [
+      "Show recurring sales or commissions to prove income flow.",
+      "Document regular client payments or business contracts.",
+      "A smaller first loan can demonstrate your capacity to manage business debt."
+    ]
+  },
+  "State servant": {
+    "label": "State servant",
+    "ideas": [
+      "Leverage your employment stability as a strong factor for approval.",
+      "Ensure all official benefit documentation is up to date.",
+      "Automatic payroll deductions can be a great way to guarantee on-time payments."
+    ]
+  },
+  "Unemployed": {
+    "label": "Unemployed",
+    "ideas": [
+      "Focus on showing any secondary income or government support.",
+      "Starting with a micro-loan is the best way to prove reliability during transitions.",
+      "Highlight your previous stable work history if available."
+    ]
+  },
+  "Student": {
+    "label": "Student",
+    "ideas": [
+      "Document any scholarships, grants, or part-time work income.",
+      "A very small loan for educational tools is a great way to start your credit history.",
+      "Consider a co-signer or proof of family support if possible."
+    ]
+  },
+  "Businessman": {
+    "label": "Businessman",
+    "ideas": [
+      "Provide tax returns or official business registration documents.",
+      "Show a healthy cash flow in your business bank accounts.",
+      "Use the loan for a specific, revenue-generating business purpose."
+    ]
+  },
+  "Maternity leave": {
+    "label": "Maternity leave",
+    "ideas": [
+      "Include documentation of maternity benefits and return-to-work plans.",
+      "Focus on family income stability during this period.",
+      "Small, flexible installments can help manage expenses during your leave."
+    ]
+  }
+}

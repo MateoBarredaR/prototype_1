@@ -1,0 +1,20 @@
+[
+  {
+    "income_type": "Working",
+    "title": "How to document informal or gig income",
+    "url": "https://www.irs.gov/businesses/small-businesses-self-employed/manage-taxes-for-your-gig-work",
+    "tag": "income_proof"
+  },
+  {
+    "income_type": "Student",
+    "title": "Building credit as a college student",
+    "url": "https://www.investopedia.com/guide-to-student-credit-cards-4774771",
+    "tag": "credit_building"
+  },
+  {
+    "income_type": "Businessman",
+    "title": "Small business financial management 101",
+    "url": "https://www.sba.gov/business-guide/manage-your-business/manage-your-finances",
+    "tag": "business_growth"
+  }
+]
